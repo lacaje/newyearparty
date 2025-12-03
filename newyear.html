@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Year Party</title>
+
+  <style>
+    body {
+      margin:0;
+      font-family:'Montserrat',sans-serif;
+      background:#050505;
+      color:#fff;
+      overflow-x:hidden;
+    }
+
+    .hero {
+      position:relative;
+      width:100%;
+      height:100vh;
+      overflow:hidden;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      text-align:center;
+    }
+
+    .hero video {
+      position:absolute;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      z-index:0;
+    }
+
+    .hero-content {
+      position:relative;
+      z-index:2;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:20px;
+    }
+
+    h1 {
+      font-size:48px;
+      text-shadow:0 0 20px rgba(0,0,0,0.8);
+    }
+
+    .cta {
+      padding:14px 40px;
+      background:#0af;
+      color:#000;
+      border-radius:50px;
+      font-weight:700;
+      cursor:pointer;
+      border:none;
+      font-size:18px;
+      transition:0.25s;
+    }
+    .cta:hover { background:#00d5ff; }
+
+    /* POPUP */
+    #form-popup {
+      display:none;
+      position:fixed;
+      top:0; left:0;
+      width:100%; height:100%;
+      background:rgba(0,0,0,0.85);
+      z-index:50;
+      justify-content:center;
+      align-items:center;
+      animation:fadeIn .3s ease forwards;
+    }
+
+    #form-inner {
+      background:rgba(0,150,255,0.15);
+      padding:35px;
+      border-radius:20px;
+      display:flex;
+      flex-direction:column;
+      gap:15px;
+      width:90%;
+      max-width:450px;
+      box-shadow:0 0 30px rgba(0,200,255,0.5);
+      animation:popupIn .35s ease forwards;
+    }
+
+    #form-inner input,
+    #form-inner select {
+      padding:12px;
+      border-radius:8px;
+      border:none;
+      background:rgba(255,255,255,0.1);
+      color:#fff;
+      font-size:16px;
+      outline:none;
+    }
+
+    #submit-form {
+      padding:12px;
+      background:#0af;
+      color:#000;
+      border:none;
+      border-radius:50px;
+      font-weight:700;
+      cursor:pointer;
+      transition:.3s;
+    }
+    #submit-form:hover { background:#00d5ff; }
+
+    #close-form {
+      padding:10px;
+      background:#ff0033;
+      color:#fff;
+      border:none;
+      border-radius:50px;
+      cursor:pointer;
+    }
+
+    #form-msg {
+      text-align:center;
+      font-weight:700;
+      margin-top:10px;
+    }
+
+    @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+    @keyframes popupIn { from{transform:scale(.8); opacity:0;} to{transform:scale(1); opacity:1;} }
+  </style>
+</head>
+
+<body>
+
+  <!-- HERO -->
+  <section class="hero">
+    <video autoplay muted loop playsinline>
+      <source src="assets/fireworks.mp4" type="video/mp4">
+    </video>
+
+    <div class="hero-content">
+      <h1>New Year Party</h1>
+      <button id="prenota-btn" class="cta">Prenota Ora</button>
+    </div>
+  </section>
+
+  <!-- FORM POPUP -->
+  <div id="form-popup">
+    <div id="form-inner">
+      <h2 style="text-align:center;">Prenota la tua prevendita</h2>
+
+      <input type="text" id="nome" placeholder="Nome" required>
+      <input type="text" id="cognome" placeholder="Cognome" required>
+      <select id="sesso" required>
+        <option value="">Seleziona sesso</option>
+        <option value="Maschio">Maschio</option>
+        <option value="Femmina">Femmina</option>
+      </select>
+      <input type="number" id="anno" placeholder="Anno di nascita (es. 2000)" required>
+      <input type="text" id="instagram" placeholder="Instagram (es. @utente)" required>
+      <input type="tel" id="telefono" placeholder="Telefono" required>
+
+      <button id="submit-form">Invia</button>
+      <button id="close-form">Chiudi</button>
+      <p id="form-msg"></p>
+    </div>
+  </div>
+
+  <script>
+    const prenotaBtn = document.getElementById("prenota-btn");
+    const formPopup = document.getElementById("form-popup");
+    const closeBtn = document.getElementById("close-form");
+    const submitBtn = document.getElementById("submit-form");
+    const msg = document.getElementById("form-msg");
+
+    prenotaBtn.addEventListener("click", () => {
+      formPopup.style.display = "flex";
+      document.getElementById("nome").focus();
+    });
+
+    closeBtn.addEventListener("click", () => {
+      formPopup.style.display = "none";
+      msg.textContent = "";
+    });
+
+    submitBtn.addEventListener("click", () => {
+      const nome = document.getElementById("nome").value.trim();
+      const cognome = document.getElementById("cognome").value.trim();
+      const sesso = document.getElementById("sesso").value;
+      const anno = document.getElementById("anno").value.trim();
+      const insta = document.getElementById("instagram").value.trim();
+      const tel = document.getElementById("telefono").value.trim();
+
+      if (!nome || !cognome || !sesso || !anno || !insta || !tel) {
+        msg.style.color = "red";
+        msg.textContent = "Compila tutti i campi!";
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Invio...";
+
+      const payload = {
+        data: [{
+          "NOME": nome,
+          "COGNOME": cognome,
+          "SESSO": sesso,
+          "ANNO DI NASCITA": anno,
+          "INSTAGRAM": insta,
+          "TELEFONO": tel
+        }]
+      };
+
+      fetch("https://sheetdb.io/api/v1/0el2b6c0k82lp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+      .then(res => {
+        if (res.ok) {
+          msg.style.color = "limegreen";
+          msg.textContent = "Registrazione avvenuta!";
+          setTimeout(()=>{ formPopup.style.display = "none"; },1500);
+        } else {
+          msg.style.color = "red";
+          msg.textContent = "Errore dal server.";
+        }
+      })
+      .catch(() => {
+        msg.style.color = "red";
+        msg.textContent = "Errore di connessione.";
+      })
+      .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Invia";
+      });
+    });
+  </script>
+
+</body>
+</html>
